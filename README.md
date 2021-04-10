@@ -2,7 +2,7 @@
 
 We analyze a plurality of epidemiological models through the lens of physics-informed neural networks (PINNs) that enable us to identify multiple time-dependent parameters and to discover new data-driven fractional differential operators. In particular, we consider several variations of the classical susceptible-infectious-removed (SIR) model by introducing more compartments and delay in the dynamics described by integer-order, fractional-order, and time-delay models.
 
-### PINN-COVID
+## PINN-COVID
 The `PINN-COVID` is a Python package containing tools for studying identifiability, predictibility, and uncertainty quantification of epidemiological models. The codes require only a standard computer with enough RAM and CPU/GPU computation power.
 
 ### Python Dependencies
@@ -17,15 +17,15 @@ scipy==1.6.0
 tensorflow-gpu==1.15.0
 ```
 
-### Running the Codes
+## Running the Codes
 
 In each folder for different datasets, there are two Python codes for each model: one with the term `_training` and one with the term `_PostProcess`. The `training` code runs the corresponding model to infere the parameters/dynamics and saves the results. Each time the code is run, the results are saved in a separate folder. The `PostPocess` code compute the mean and std of the results from `training`.    
 
-### Reference
+## Reference
 
 The detail explanation of the formulation and results can be found here: [![Reference](https://www.medrxiv.org/content/10.1101/2021.04.05.21254919v1)](https://www.medrxiv.org/content/10.1101/2021.04.05.21254919v1)
 
 
-# License
+## License
 
 This project is covered under the **MIT License**.
