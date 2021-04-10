@@ -21,5 +21,11 @@ tensorflow-gpu==1.15.0
 
 In each folder for different datasets, there are two Python codes for each model: one with the term `_training` and one with the term `_PostProcess`. The `training` code runs the corresponding model to infere the parameters/dynamics and saves the results. Each time the code is run, the results are saved in a separate folder. The `PostPocess` code compute the mean and std of the results from `training`.    
 
+### Reference
+
+The detail explanation of the formulation and results can be found here: [![Reference](https://www.medrxiv.org/content/10.1101/2021.04.05.21254919v1)](https://www.medrxiv.org/content/10.1101/2021.04.05.21254919v1)
 
 
+# License
+
+This project is covered under the **MIT License**.
