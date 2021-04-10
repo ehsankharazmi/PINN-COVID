@@ -1,6 +1,15 @@
 # -*- coding: utf-8 -*-
 """ 
-
+@Title:
+    Identifiability and predictability of
+    integer- and fractional-order epidemiological models
+    using physics-informed neural networks
+@author: 
+    Ehsan Kharazmi & Min Cai
+    Division of Applied Mathematics
+    Brown University
+    ehsan_kharazmi@brown.edu
+Created on 2020 
 """
 
 
