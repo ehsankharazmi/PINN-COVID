@@ -19,7 +19,7 @@ tensorflow-gpu==1.15.0
 
 ## Running the Codes
 
-In each folder for different datasets, there are two Python codes for each model: one with the term `_training` and one with the term `_PostProcess`. The `training` code runs the corresponding model to infere the parameters/dynamics and saves the results. Each time the code is run, the results are saved in a separate folder. The `PostPocess` code computes the mean and std of the results from `training`.    
+In each folder for different datasets, there are two Python codes for each model: one with the term `_training` and one with the term `_PostProcess`. The `training` code runs the corresponding model to infere the parameters/dynamics and saves the results. Each time the code is run, the results are saved in a separate folder. The `PostPocess` code computes the mean and std of the results from `training`.  The  computationally expensive part of the simulation is running the  `training` codes, especially that for each case and each dateset, we run this code at least 10 times to compute the corresponding uncertainties. The run time strongly depends on the computational power of the machine on which the code is running.
 
 ## Reference
 
