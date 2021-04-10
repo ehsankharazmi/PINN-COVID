@@ -23,7 +23,7 @@ In each folder for different datasets, there are two Python codes for each model
 
 ### Running the Codes on a New Dataset
 
-The PINN-COVID has the flexibility to be run on a new dataset. If the available data on the epidemiological classes are the same as the ones considered in the codes, then only the loading part of the code should be modified. However, If the available data includes/excludes certain epidemiological classes, then specific modifications should be made in the loss function of the network to accommodate  the new dataset. 
+The PINN-COVID has the flexibility to be run on a new dataset. If the available data on the epidemiological classes are the same as the ones considered in the codes, then only the loading part of the code should be modified. However, If the available data includes/excludes certain epidemiological classes, then specific modifications should be made in the loss function of the network to accommodate  the new dataset. We refer to the Supplementary Information provided in the Reference. 
 
 
 ## Reference
