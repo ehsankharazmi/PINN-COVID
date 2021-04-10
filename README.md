@@ -15,6 +15,5 @@ pandas==1.2.1
 pyDOE==0.3.8
 scipy==1.6.0
 tensorflow-gpu==1.15.0
-other packages
 ```
 
