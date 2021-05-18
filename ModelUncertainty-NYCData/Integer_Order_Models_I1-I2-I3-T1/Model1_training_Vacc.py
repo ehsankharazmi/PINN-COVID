@@ -1,15 +1,7 @@
 # -*- coding: utf-8 -*-
 """ 
-@Title:
-    Identifiability and predictability of
-    integer- and fractional-order epidemiological models
-    using physics-informed neural networks
-@author: 
-    Ehsan Kharazmi & Min Cai
-    Division of Applied Mathematics
-    Brown University
-    ehsan_kharazmi@brown.edu
-Created on 2020 
+
+
 """
 
 
@@ -154,12 +146,19 @@ class PhysicsInformedNN:
             tf.reduce_mean(tf.square(self.R0_u - self.R0_pred))
             # tf.reduce_mean(tf.square(self.S0_u - self.S0_pred))  
         
-        self.lossU = tf.reduce_mean(tf.square(self.I_new_u[:-1,:] - self.I_new_pred)) + \
-            tf.reduce_mean(tf.square(self.D_new_u[:-1,:] - self.D_new_pred)) + \
-            tf.reduce_mean(tf.square(self.H_new_u[:-1,:] - self.H_new_pred)) + \
+        # self.lossU = tf.reduce_mean(tf.square(self.I_new_u[:-1,:] - self.I_new_pred)) + \
+        #     tf.reduce_mean(tf.square(self.D_new_u[:-1,:] - self.D_new_pred)) + \
+        #     tf.reduce_mean(tf.square(self.H_new_u[:-1,:] - self.H_new_pred)) + \
+        #     tf.reduce_mean(tf.square(self.I_sum_u - self.I_sum_pred)) + \
+        #     tf.reduce_mean(tf.square(self.D_sum_u - self.D_sum_pred)) + \
+        #     tf.reduce_mean(tf.square(self.H_sum_u - self.H_sum_pred)) 
+        
+        self.lossU = 120*tf.reduce_mean(tf.square(self.I_new_u[:-1,:] - self.I_new_pred)) + \
+            10*120*tf.reduce_mean(tf.square(self.D_new_u[:-1,:] - self.D_new_pred)) + \
+            3*120*tf.reduce_mean(tf.square(self.H_new_u[:-1,:] - self.H_new_pred)) + \
             tf.reduce_mean(tf.square(self.I_sum_u - self.I_sum_pred)) + \
-            tf.reduce_mean(tf.square(self.D_sum_u - self.D_sum_pred)) + \
-            tf.reduce_mean(tf.square(self.H_sum_u - self.H_sum_pred)) 
+            10*tf.reduce_mean(tf.square(self.D_sum_u - self.D_sum_pred)) + \
+            3*tf.reduce_mean(tf.square(self.H_sum_u - self.H_sum_pred))
         
         self.lossF = tf.reduce_mean(tf.square(self.E_f)) + tf.reduce_mean(tf.square(self.I_f)) + \
             tf.reduce_mean(tf.square(self.J_f)) + tf.reduce_mean(tf.square(self.D_f)) + \
@@ -245,6 +244,7 @@ class PhysicsInformedNN:
     def net_q(self,t):
         q = self.neural_net(t, self.weights_q, self.biases_q) 
         return 0.15+(0.6-0.15)*tf.sigmoid(q)
+        # return tf.sigmoid(q)
     
     def net_f(self, t):
         #load fixed parameters
@@ -356,10 +356,10 @@ class PhysicsInformedNN:
 if __name__=="__main__":   
     
     #Architecture of of the NN 
-    layers=[1] + 10*[30] + [8] #The inout is t while the outputs rae E,I,J,D,H,R,I_sum,H_sum,D_sum 
-    layers_beta=[1] +5*[20] + [1] 
-    layers_p=[1] + 5*[20] + [1]
-    layers_q=[1] + 5*[20] + [1]
+    layers=[1] + 5*[20] + [8] #The inout is t while the outputs are E,I,J,D,H,R,I_sum,H_sum,D_sum 
+    layers_beta=[1] + 1*[5] + [1] 
+    layers_p=[1] + 1*[5] + [1]
+    layers_q=[1] + 1*[5] + [1]
 
     #Load data
     data_frame = pandas.read_csv('Data/data-by-day.csv')  
@@ -446,7 +446,7 @@ if __name__=="__main__":
 
     #save results  
     current_directory = os.getcwd()
-    for j in range(10):
+    for j in range(11):
         casenumber = 'set' + str(j+1)
 
         relative_path_results = '/Model1/Train-Results-'+dt_string+'-'+casenumber+'/'
@@ -458,400 +458,400 @@ if __name__=="__main__":
         save_models_to = current_directory + relative_path
         if not os.path.exists(save_models_to):
             os.makedirs(save_models_to)
-            break
+            # break
 
 
-    ####model 
-    total_records = []
-    total_records_LBFGS = []
-    model = PhysicsInformedNN(t_train, I_new_train, D_new_train, H_new_train, 
-                 I_sum_train, D_sum_train, H_sum_train, U0, t_f, lb, ub, N, 
-                 layers, layers_beta, layers_p, layers_q, sf)
-    ####Training 
-    LBFGS=True
-    # LBFGS=False
-    model.train(10000) #Training with n iterations 
-
-    ####save model 
-    model.saver.save(model.sess, save_models_to+"model.ckpt")
-
-
-    ####Predicting   
-    S, E, I, J, D, H, R, I_new, D_new, H_new, I_sum, D_sum, H_sum, BetaI, p, q = model.predict(t_star) 
-    import datetime
-    end_time = time.time()
-    print(datetime.timedelta(seconds=int(end_time-start_time)))
-     
-    ####Calculate RC  
-    Rc = BetaI * ((1.0-0.6)*0.75/(1.0/6.0) + 0.6/(1.0/6.0))  
+        ####model 
+        total_records = []
+        total_records_LBFGS = []
+        model = PhysicsInformedNN(t_train, I_new_train, D_new_train, H_new_train, 
+                     I_sum_train, D_sum_train, H_sum_train, U0, t_f, lb, ub, N, 
+                     layers, layers_beta, layers_p, layers_q, sf)
+        ####Training 
+        LBFGS=True
+        # LBFGS=False
+        model.train(10000) #Training with n iterations 
     
-
-    ####save data
-    np.savetxt(save_results_to +'S.txt', S.reshape((-1,1)))
-    np.savetxt(save_results_to +'E.txt', E.reshape((-1,1)))
-    np.savetxt(save_results_to +'I.txt', I.reshape((-1,1)))
-    np.savetxt(save_results_to +'J.txt', J.reshape((-1,1)))
-    np.savetxt(save_results_to +'D.txt', D.reshape((-1,1)))
-    np.savetxt(save_results_to +'H.txt', H.reshape((-1,1)))
-    np.savetxt(save_results_to +'R.txt', R.reshape((-1,1)))
-    np.savetxt(save_results_to +'I_new.txt', I_new.reshape((-1,1)))
-    np.savetxt(save_results_to +'D_new.txt', D_new.reshape((-1,1)))
-    np.savetxt(save_results_to +'H_new.txt', H_new.reshape((-1,1)))
-    np.savetxt(save_results_to +'I_sum.txt', I_sum.reshape((-1,1))) 
-    np.savetxt(save_results_to +'H_sum.txt', H_sum.reshape((-1,1))) 
-    np.savetxt(save_results_to +'D_sum.txt', D_sum.reshape((-1,1)))  
-    ####save BetaI, Rc, and q
-    np.savetxt(save_results_to +'t_star.txt', t_star.reshape((-1,1))) 
-    np.savetxt(save_results_to +'BetaI.txt', BetaI.reshape((-1,1)))
-    np.savetxt(save_results_to +'Rc.txt', Rc.reshape((-1,1)))   
-    np.savetxt(save_results_to +'p.txt', p.reshape((-1,1)))
-    np.savetxt(save_results_to +'q.txt', q.reshape((-1,1)))
-
-
-    ####records for Adam
-    N_Iter = len(total_records)
-    iteration = np.asarray(total_records)[:,0]
-    loss_his = np.asarray(total_records)[:,1]
-    loss_his_u0  = np.asarray(total_records)[:,2]
-    loss_his_u  = np.asarray(total_records)[:,3]
-    loss_his_f  = np.asarray(total_records)[:,4]   
-    
-    ####records for LBFGS
-    if LBFGS: 
-        N_Iter_LBFGS = len(total_records_LBFGS)
-        iteration_LBFGS = np.arange(N_Iter_LBFGS)+N_Iter*100
-        loss_his_LBFGS = np.asarray(total_records_LBFGS)[:,0]
-        loss_his_u0_LBFGS = np.asarray(total_records_LBFGS)[:,1]
-        loss_his_u_LBFGS  = np.asarray(total_records_LBFGS)[:,2]
-        loss_his_f_LBFGS  = np.asarray(total_records_LBFGS)[:,3]
-
-    ####save records
-    np.savetxt(save_results_to +'iteration.txt', iteration.reshape((-1,1))) 
-    np.savetxt(save_results_to +'loss_his.txt', loss_his.reshape((-1,1)))
-    np.savetxt(save_results_to +'loss_his_u0.txt', loss_his_u0.reshape((-1,1))) 
-    np.savetxt(save_results_to +'loss_his_u.txt', loss_his_u.reshape((-1,1))) 
-    np.savetxt(save_results_to +'loss_his_f.txt', loss_his_f.reshape((-1,1)))   
-    
-    if LBFGS: 
-        np.savetxt(save_results_to +'iteration_LBFGS.txt', iteration_LBFGS.reshape((-1,1))) 
-        np.savetxt(save_results_to +'loss_his_LBFGS.txt', loss_his_LBFGS.reshape((-1,1)))
-        np.savetxt(save_results_to +'loss_his_u0_LBFGS.txt', loss_his_u0_LBFGS.reshape((-1,1))) 
-        np.savetxt(save_results_to +'loss_his_u_LBFGS.txt', loss_his_u_LBFGS.reshape((-1,1))) 
-        np.savetxt(save_results_to +'loss_his_f_LBFGS.txt', loss_his_f_LBFGS.reshape((-1,1)))   
-
-
-    ######################################################################
-    ############################# Plotting ###############################
-    ###################################################################### 
-    SAVE_FIG = True
-
-    #History of loss 
-    font = 24
-    fig, ax = plt.subplots()
-    plt.locator_params(axis='x', nbins=6)
-    plt.locator_params(axis='y', nbins=6)
-    plt.tick_params(axis='y', which='both', labelleft='on', labelright='off')
-    plt.xlabel('$iteration$', fontsize = font)
-    plt.ylabel('$loss values$', fontsize = font)
-    plt.yscale('log')
-    plt.grid(True) 
-    plt.plot(iteration,loss_his, label='$loss$')
-    plt.plot(iteration,loss_his_u0, label='$loss_{u0}$')
-    plt.plot(iteration,loss_his_u, label='$loss_u$')
-    plt.plot(iteration,loss_his_f, label='$loss_f$')  
-    if LBFGS: 
-        plt.plot(iteration_LBFGS,loss_his_LBFGS, label='$loss-LBFGS$')
-        plt.plot(iteration_LBFGS,loss_his_u0_LBFGS, label='$loss_{u0}-LBFGS$')
-        plt.plot(iteration_LBFGS,loss_his_u_LBFGS, label='$loss_u-LBFGS$')
-        plt.plot(iteration_LBFGS,loss_his_f_LBFGS, label='$loss_f-LBFGS$') 
-    plt.legend(loc="upper right",  fontsize = 24, ncol=4)
-    plt.legend()
-    ax.tick_params(axis='both', labelsize = 24)
-    fig.set_size_inches(w=13,h=6.5)
-    if SAVE_FIG:
-        plt.savefig(save_results_to +'History_loss.png', dpi=300)  
-    
-    #Current cases 
-    #Infections 
-    font = 24
-    fig, ax = plt.subplots() 
-    ax.plot(t_star, I/sf, 'r-',lw=2,label='PINN') 
-    # ax.set_xlim(0-0.5,180)
-    # ax.set_ylim(0-0.5,6000+0.5)
-    ax.legend(fontsize=22)
-    ax.tick_params(axis='both', labelsize = 24)
-    ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
-    ax.grid(True)
-    ax.set_xlabel('Days', fontsize = font)
-    ax.set_ylabel('Current infections ($I$)', fontsize = font) 
-    fig.set_size_inches(w=13,h=6.5)
-    if SAVE_FIG:
-        plt.savefig(save_results_to +'Current_infections.png', dpi=300)  
-
-    #Hospitalizations
-    font = 24
-    fig, ax = plt.subplots() 
-    ax.plot(t_star, H/sf, 'r-',lw=2,label='PINN') 
-    # ax.set_xlim(0-0.5,180)
-    # ax.set_ylim(0-0.5,6000+0.5)
-    ax.legend(fontsize=22)
-    ax.tick_params(axis='both', labelsize = 24)
-    ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
-    ax.grid(True)
-    ax.set_xlabel('Days', fontsize = font)
-    ax.set_ylabel('Current hospitalized ($H$)', fontsize = font) 
-    fig.set_size_inches(w=13,h=6.5)
-    if SAVE_FIG:
-        plt.savefig(save_results_to +'Current_hospitalized.png', dpi=300)  
-
-    #Death 
-    font = 24
-    fig, ax = plt.subplots() 
-    ax.plot(t_star, D/sf, 'r-',lw=2,label='PINN') 
-    # ax.set_xlim(0-0.5,180)
-    # ax.set_ylim(0-0.5,6000+0.5)
-    ax.legend(fontsize=22)
-    ax.tick_params(axis='both', labelsize = 24)
-    ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
-    ax.grid(True)
-    ax.set_xlabel('Days', fontsize = font)
-    ax.set_ylabel('Current death ($D$)', fontsize = font) 
-    fig.set_size_inches(w=13,h=6.5)
-    if SAVE_FIG:
-        plt.savefig(save_results_to +'Current_death.png', dpi=300)  
+        ####save model 
+        model.saver.save(model.sess, save_models_to+"model.ckpt")
     
     
-    #New cases 
-    #Confirmed Cases
-    font = 24
-    fig, ax = plt.subplots()
-    ax.plot(t_star, I_new_star/sf, 'k--', marker = 'o',lw=2, markersize=5, label='Data-7davg')
-    # ax.plot(t_star, I_new_star/sf, 'b.', lw=2, markersize=5, label='Data-daily')
-    ax.plot(t_star[:-1], I_new/sf, 'r-',lw=2,label='PINN') 
-    # ax.set_xlim(0-0.5,180)
-    # ax.set_ylim(0-0.5,6000+0.5)
-    ax.legend(fontsize=22)
-    ax.tick_params(axis='both', labelsize = 24)
-    ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
-    ax.grid(True)
-    ax.set_xlabel('Days', fontsize = font)
-    ax.set_ylabel('New cases ($I$)', fontsize = font) 
-    fig.set_size_inches(w=13,h=6.5)
-    if SAVE_FIG:
-        plt.savefig(save_results_to +'new_cases.png', dpi=300)  
-
-    #Hospitalized Cases
-    font = 24
-    fig, ax = plt.subplots()
-    ax.plot(t_star, H_new_star/sf, 'k--', marker = 'o',lw=2, markersize=5, label='Data-7davg')
-    # ax.plot(t_star, H_new_star/sf, 'b.', lw=2, markersize=5, label='Data-daily')
-    ax.plot(t_star[:-1], H_new/sf, 'r-',lw=2,label='PINN') 
-    # ax.set_xlim(0-0.5,180)
-    # ax.set_ylim(0-0.5,6000+0.5)
-    ax.legend(fontsize=22)
-    ax.tick_params(axis='both', labelsize = 24)
-    ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
-    ax.grid(True)
-    ax.set_xlabel('Days', fontsize = font)
-    ax.set_ylabel('New hospitalized ($H$)', fontsize = font) 
-    fig.set_size_inches(w=13,h=6.5)
-    if SAVE_FIG:
-        plt.savefig(save_results_to +'new_hospitalized.png', dpi=300)  
-
-    #Death Cases
-    font = 24
-    fig, ax = plt.subplots()
-    ax.plot(t_star, D_new_star/sf, 'k--', marker = 'o',lw=2, markersize=5, label='Data-7davg')
-    # ax.plot(t_star, D_new_star/sf, 'b.', lw=2, markersize=5, label='Data-daily')
-    ax.plot(t_star[:-1], D_new/sf, 'r-',lw=2,label='PINN') 
-    # ax.set_xlim(0-0.5,180)
-    # ax.set_ylim(0-0.5,6000+0.5)
-    ax.legend(fontsize=22)
-    ax.tick_params(axis='both', labelsize = 24)
-    ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
-    ax.grid(True)
-    ax.set_xlabel('Days', fontsize = font)
-    ax.set_ylabel('New death ($D$)', fontsize = font) 
-    fig.set_size_inches(w=13,h=6.5)
-    if SAVE_FIG:
-        plt.savefig(save_results_to +'new_death.png', dpi=300)  
+        ####Predicting   
+        S, E, I, J, D, H, R, I_new, D_new, H_new, I_sum, D_sum, H_sum, BetaI, p, q = model.predict(t_star) 
+        import datetime
+        end_time = time.time()
+        print(datetime.timedelta(seconds=int(end_time-start_time)))
+         
+        ####Calculate RC  
+        Rc = BetaI * ((1.0-0.6)*0.75/(1.0/6.0) + 0.6/(1.0/6.0))  
+        
     
-    #Accumulative confirmed Cases
-    font = 24
-    fig, ax = plt.subplots()
-    ax.plot(t_star, I_sum_star/sf, 'k--', marker = 'o',lw=2, markersize=5, label='Data-7davg')
-    # ax.plot(t_star, I_sum_star/sf, 'b.', lw=2, markersize=5, label='Data-daily')
-    ax.plot(t_star, I_sum/sf, 'r-',lw=2,label='PINN') 
-    # ax.set_xlim(0-0.5,180)
-    # ax.set_ylim(0-0.5,6000+0.5)
-    ax.legend(fontsize=22)
-    ax.tick_params(axis='both', labelsize = 24)
-    ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
-    ax.grid(True)
-    ax.set_xlabel('Days', fontsize = font)
-    ax.set_ylabel('Cumulative cases ($I_{sum}$)', fontsize = font) 
-    fig.set_size_inches(w=13,h=6.5)
-    if SAVE_FIG:
-        plt.savefig(save_results_to +'Cumulative_cases.png', dpi=300)  
-
-    #Accumulative hospitalized Cases
-    font = 24
-    fig, ax = plt.subplots()
-    ax.plot(t_star, H_sum_star/sf, 'k--', marker = 'o',lw=2, markersize=5, label='Data-7davg')
-    # ax.plot(t_star, H_sum_star/sf, 'b.', lw=2, markersize=5, label='Data-daily')
-    ax.plot(t_star, H_sum/sf, 'r-',lw=2,label='PINN') 
-    # ax.set_xlim(0-0.5,180)
-    # ax.set_ylim(0-0.5,6000+0.5)
-    ax.legend(fontsize=22)
-    ax.tick_params(axis='both', labelsize = 24)
-    ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
-    ax.grid(True)
-    ax.set_xlabel('Days', fontsize = font)
-    ax.set_ylabel('Cumulative hospitalized ($H_{sum}$)', fontsize = font) 
-    fig.set_size_inches(w=13,h=6.5)
-    if SAVE_FIG:
-        plt.savefig(save_results_to +'Cumulative_hospitalized.png', dpi=300)  
-
-    #Accumulative death cases
-    font = 24
-    fig, ax = plt.subplots()
-    ax.plot(t_star, D_sum_star/sf, 'k--', marker = 'o',lw=2, markersize=5, label='Data-7davg')
-    # ax.plot(t_star, D_sum_star/sf, 'b.', lw=2, markersize=5, label='Data-daily')
-    ax.plot(t_star, D_sum/sf, 'r-',lw=2,label='PINN') 
-    # ax.set_xlim(0-0.5,180)
-    # ax.set_ylim(0-0.5,6000+0.5)
-    ax.legend(fontsize=22)
-    ax.tick_params(axis='both', labelsize = 24)
-    ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
-    ax.grid(True)
-    ax.set_xlabel('Days', fontsize = font)
-    ax.set_ylabel('Cumulative death ($D_{sum}$)', fontsize = font) 
-    fig.set_size_inches(w=13,h=6.5)
-    if SAVE_FIG:
-        plt.savefig(save_results_to +'Cumulative_death.png', dpi=300) 
-
+        ####save data
+        np.savetxt(save_results_to +'S.txt', S.reshape((-1,1)))
+        np.savetxt(save_results_to +'E.txt', E.reshape((-1,1)))
+        np.savetxt(save_results_to +'I.txt', I.reshape((-1,1)))
+        np.savetxt(save_results_to +'J.txt', J.reshape((-1,1)))
+        np.savetxt(save_results_to +'D.txt', D.reshape((-1,1)))
+        np.savetxt(save_results_to +'H.txt', H.reshape((-1,1)))
+        np.savetxt(save_results_to +'R.txt', R.reshape((-1,1)))
+        np.savetxt(save_results_to +'I_new.txt', I_new.reshape((-1,1)))
+        np.savetxt(save_results_to +'D_new.txt', D_new.reshape((-1,1)))
+        np.savetxt(save_results_to +'H_new.txt', H_new.reshape((-1,1)))
+        np.savetxt(save_results_to +'I_sum.txt', I_sum.reshape((-1,1))) 
+        np.savetxt(save_results_to +'H_sum.txt', H_sum.reshape((-1,1))) 
+        np.savetxt(save_results_to +'D_sum.txt', D_sum.reshape((-1,1)))  
+        ####save BetaI, Rc, and q
+        np.savetxt(save_results_to +'t_star.txt', t_star.reshape((-1,1))) 
+        np.savetxt(save_results_to +'BetaI.txt', BetaI.reshape((-1,1)))
+        np.savetxt(save_results_to +'Rc.txt', Rc.reshape((-1,1)))   
+        np.savetxt(save_results_to +'p.txt', p.reshape((-1,1)))
+        np.savetxt(save_results_to +'q.txt', q.reshape((-1,1)))
     
-    #BetaI curve 
-    font = 24
-    fig, ax = plt.subplots()  
-    ax.plot(t_star, BetaI, 'r-',lw=2) 
-    # ax.set_xlim(0-0.5,180)
-    # ax.set_ylim(0-0.5,6000+0.5)
-    ax.legend(fontsize=22)
-    ax.tick_params(axis='both', labelsize = 24)
-    # ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
-    ax.grid(True)
-    ax.set_xlabel('Days', fontsize = font)
-    ax.set_ylabel('$Beta_{I}$', fontsize = font) 
-    fig.set_size_inches(w=13,h=6.5)
-    if SAVE_FIG:
-        plt.savefig(save_results_to +'BetaI.png', dpi=300)  
     
-    #RC curve 
-    font = 24
-    fig, ax = plt.subplots()  
-    ax.plot(t_star, Rc, 'r-',lw=2) 
-    # ax.set_xlim(0-0.5,180)
-    # ax.set_ylim(0-0.5,6000+0.5)
-    ax.legend(fontsize=22)
-    ax.tick_params(axis='both', labelsize = 24)
-    # ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
-    ax.grid(True)
-    ax.set_xlabel('Days', fontsize = font)
-    ax.set_ylabel('$R_{c}$', fontsize = font) 
-    fig.set_size_inches(w=13,h=6.5)
-    if SAVE_FIG:
-        plt.savefig(save_results_to +'Rc.png', dpi=300)
-
-    #p curve 
-    font = 24
-    fig, ax = plt.subplots()  
-    ax.plot(t_star, p, 'r-', lw=2, label='PINN')    
-    # ax.set_xlim(0-0.5,180)
-    # ax.set_ylim(0-0.5,6000+0.5)
-    ax.legend(fontsize=22)
-    ax.tick_params(axis='both', labelsize = 24)
-    # ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
-    ax.grid(True)
-    ax.set_xlabel('Days', fontsize = font)
-    ax.set_ylabel('$p$', fontsize = font) 
-    fig.set_size_inches(w=13,h=6.5)
-    if SAVE_FIG:
-        plt.savefig(save_results_to +'p.png', dpi=300)
-
-    #q curve 
-    font = 24
-    fig, ax = plt.subplots()  
-    ax.plot(t_star, q, 'r-', lw=2, label='PINN')    
-    # ax.set_xlim(0-0.5,180)
-    # ax.set_ylim(0-0.5,6000+0.5)
-    ax.legend(fontsize=22)
-    ax.tick_params(axis='both', labelsize = 24)
-    # ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
-    ax.grid(True)
-    ax.set_xlabel('Days', fontsize = font)
-    ax.set_ylabel('$q$', fontsize = font) 
-    fig.set_size_inches(w=13,h=6.5)
-    if SAVE_FIG:
-        plt.savefig(save_results_to +'q.png', dpi=300)
-
-    # Current SEIJDHR 
-    font = 24
-    fig, ax = plt.subplots() 
-    ax.plot(t_star, S/sf, lw=2,label='S') 
-    # ax.set_xlim(0-0.5,180)
-    # ax.set_ylim(0-0.5,6000+0.5)
-    ax.legend(fontsize=22)
-    ax.tick_params(axis='both', labelsize = 24)
-    # ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
-    ax.grid(True)
-    ax.set_xlabel('Days', fontsize = font)
-    ax.set_ylabel('$S$', fontsize = font) 
-    fig.set_size_inches(w=13,h=6.5)
-    if SAVE_FIG:
-        plt.savefig(save_results_to +'Current_S.png', dpi=300) 
+        ####records for Adam
+        N_Iter = len(total_records)
+        iteration = np.asarray(total_records)[:,0]
+        loss_his = np.asarray(total_records)[:,1]
+        loss_his_u0  = np.asarray(total_records)[:,2]
+        loss_his_u  = np.asarray(total_records)[:,3]
+        loss_his_f  = np.asarray(total_records)[:,4]   
+        
+        ####records for LBFGS
+        if LBFGS: 
+            N_Iter_LBFGS = len(total_records_LBFGS)
+            iteration_LBFGS = np.arange(N_Iter_LBFGS)+N_Iter*100
+            loss_his_LBFGS = np.asarray(total_records_LBFGS)[:,0]
+            loss_his_u0_LBFGS = np.asarray(total_records_LBFGS)[:,1]
+            loss_his_u_LBFGS  = np.asarray(total_records_LBFGS)[:,2]
+            loss_his_f_LBFGS  = np.asarray(total_records_LBFGS)[:,3]
     
-    font = 24
-    fig, ax = plt.subplots()   
-    ax.plot(t_star, E/sf, lw=2,label='E')   
-    # ax.set_xlim(0-0.5,180)
-    # ax.set_ylim(0-0.5,6000+0.5)
-    ax.legend(fontsize=22)
-    ax.tick_params(axis='both', labelsize = 24)
-    # ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
-    ax.grid(True)
-    ax.set_xlabel('Days', fontsize = font)
-    ax.set_ylabel('$E$', fontsize = font) 
-    fig.set_size_inches(w=13,h=6.5)
-    if SAVE_FIG:
-        plt.savefig(save_results_to +'Current_E.png', dpi=300)
+        ####save records
+        np.savetxt(save_results_to +'iteration.txt', iteration.reshape((-1,1))) 
+        np.savetxt(save_results_to +'loss_his.txt', loss_his.reshape((-1,1)))
+        np.savetxt(save_results_to +'loss_his_u0.txt', loss_his_u0.reshape((-1,1))) 
+        np.savetxt(save_results_to +'loss_his_u.txt', loss_his_u.reshape((-1,1))) 
+        np.savetxt(save_results_to +'loss_his_f.txt', loss_his_f.reshape((-1,1)))   
+        
+        if LBFGS: 
+            np.savetxt(save_results_to +'iteration_LBFGS.txt', iteration_LBFGS.reshape((-1,1))) 
+            np.savetxt(save_results_to +'loss_his_LBFGS.txt', loss_his_LBFGS.reshape((-1,1)))
+            np.savetxt(save_results_to +'loss_his_u0_LBFGS.txt', loss_his_u0_LBFGS.reshape((-1,1))) 
+            np.savetxt(save_results_to +'loss_his_u_LBFGS.txt', loss_his_u_LBFGS.reshape((-1,1))) 
+            np.savetxt(save_results_to +'loss_his_f_LBFGS.txt', loss_his_f_LBFGS.reshape((-1,1)))   
     
-    font = 24
-    fig, ax = plt.subplots()  
-    ax.plot(t_star, J/sf, lw=2,label='J')   
-    # ax.set_xlim(0-0.5,180)
-    # ax.set_ylim(0-0.5,6000+0.5)
-    ax.legend(fontsize=22)
-    ax.tick_params(axis='both', labelsize = 24)
-    # ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
-    ax.grid(True)
-    ax.set_xlabel('Days', fontsize = font)
-    ax.set_ylabel('$J$', fontsize = font) 
-    fig.set_size_inches(w=13,h=6.5)
-    if SAVE_FIG:
-        plt.savefig(save_results_to +'Current_J.png', dpi=300)
     
-    font = 24
-    fig, ax = plt.subplots()  
-    ax.plot(t_star, R/sf, lw=2,label='R') 
-    # ax.set_xlim(0-0.5,180)
-    # ax.set_ylim(0-0.5,6000+0.5)
-    ax.legend(fontsize=22)
-    ax.tick_params(axis='both', labelsize = 24)
-    # ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
-    ax.grid(True)
-    ax.set_xlabel('Days', fontsize = font)
-    ax.set_ylabel('$R$', fontsize = font) 
-    fig.set_size_inches(w=13,h=6.5)
-    if SAVE_FIG:
-        plt.savefig(save_results_to +'Current_R.png', dpi=300) 
+        ######################################################################
+        ############################# Plotting ###############################
+        ###################################################################### 
+        SAVE_FIG = True
+    
+        #History of loss 
+        font = 24
+        fig, ax = plt.subplots()
+        plt.locator_params(axis='x', nbins=6)
+        plt.locator_params(axis='y', nbins=6)
+        plt.tick_params(axis='y', which='both', labelleft='on', labelright='off')
+        plt.xlabel('$iteration$', fontsize = font)
+        plt.ylabel('$loss values$', fontsize = font)
+        plt.yscale('log')
+        plt.grid(True) 
+        plt.plot(iteration,loss_his, label='$loss$')
+        plt.plot(iteration,loss_his_u0, label='$loss_{u0}$')
+        plt.plot(iteration,loss_his_u, label='$loss_u$')
+        plt.plot(iteration,loss_his_f, label='$loss_f$')  
+        if LBFGS: 
+            plt.plot(iteration_LBFGS,loss_his_LBFGS, label='$loss-LBFGS$')
+            plt.plot(iteration_LBFGS,loss_his_u0_LBFGS, label='$loss_{u0}-LBFGS$')
+            plt.plot(iteration_LBFGS,loss_his_u_LBFGS, label='$loss_u-LBFGS$')
+            plt.plot(iteration_LBFGS,loss_his_f_LBFGS, label='$loss_f-LBFGS$') 
+        plt.legend(loc="upper right",  fontsize = 24, ncol=4)
+        plt.legend()
+        ax.tick_params(axis='both', labelsize = 24)
+        fig.set_size_inches(w=13,h=6.5)
+        if SAVE_FIG:
+            plt.savefig(save_results_to +'History_loss.png', dpi=300)  
+        
+        #Current cases 
+        #Infections 
+        font = 24
+        fig, ax = plt.subplots() 
+        ax.plot(t_star, I/sf, 'r-',lw=2,label='PINN') 
+        # ax.set_xlim(0-0.5,180)
+        # ax.set_ylim(0-0.5,6000+0.5)
+        ax.legend(fontsize=22)
+        ax.tick_params(axis='both', labelsize = 24)
+        ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
+        ax.grid(True)
+        ax.set_xlabel('Days', fontsize = font)
+        ax.set_ylabel('Current infections ($I$)', fontsize = font) 
+        fig.set_size_inches(w=13,h=6.5)
+        if SAVE_FIG:
+            plt.savefig(save_results_to +'Current_infections.png', dpi=300)  
+    
+        #Hospitalizations
+        font = 24
+        fig, ax = plt.subplots() 
+        ax.plot(t_star, H/sf, 'r-',lw=2,label='PINN') 
+        # ax.set_xlim(0-0.5,180)
+        # ax.set_ylim(0-0.5,6000+0.5)
+        ax.legend(fontsize=22)
+        ax.tick_params(axis='both', labelsize = 24)
+        ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
+        ax.grid(True)
+        ax.set_xlabel('Days', fontsize = font)
+        ax.set_ylabel('Current hospitalized ($H$)', fontsize = font) 
+        fig.set_size_inches(w=13,h=6.5)
+        if SAVE_FIG:
+            plt.savefig(save_results_to +'Current_hospitalized.png', dpi=300)  
+    
+        #Death 
+        font = 24
+        fig, ax = plt.subplots() 
+        ax.plot(t_star, D/sf, 'r-',lw=2,label='PINN') 
+        # ax.set_xlim(0-0.5,180)
+        # ax.set_ylim(0-0.5,6000+0.5)
+        ax.legend(fontsize=22)
+        ax.tick_params(axis='both', labelsize = 24)
+        ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
+        ax.grid(True)
+        ax.set_xlabel('Days', fontsize = font)
+        ax.set_ylabel('Current death ($D$)', fontsize = font) 
+        fig.set_size_inches(w=13,h=6.5)
+        if SAVE_FIG:
+            plt.savefig(save_results_to +'Current_death.png', dpi=300)  
+        
+        
+        #New cases 
+        #Confirmed Cases
+        font = 24
+        fig, ax = plt.subplots()
+        ax.plot(t_star, I_new_star/sf, 'k--', marker = 'o',lw=2, markersize=5, label='Data-7davg')
+        # ax.plot(t_star, I_new_star/sf, 'b.', lw=2, markersize=5, label='Data-daily')
+        ax.plot(t_star[:-1], I_new/sf, 'r-',lw=2,label='PINN') 
+        # ax.set_xlim(0-0.5,180)
+        # ax.set_ylim(0-0.5,6000+0.5)
+        ax.legend(fontsize=22)
+        ax.tick_params(axis='both', labelsize = 24)
+        ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
+        ax.grid(True)
+        ax.set_xlabel('Days', fontsize = font)
+        ax.set_ylabel('New cases ($I$)', fontsize = font) 
+        fig.set_size_inches(w=13,h=6.5)
+        if SAVE_FIG:
+            plt.savefig(save_results_to +'new_cases.png', dpi=300)  
+    
+        #Hospitalized Cases
+        font = 24
+        fig, ax = plt.subplots()
+        ax.plot(t_star, H_new_star/sf, 'k--', marker = 'o',lw=2, markersize=5, label='Data-7davg')
+        # ax.plot(t_star, H_new_star/sf, 'b.', lw=2, markersize=5, label='Data-daily')
+        ax.plot(t_star[:-1], H_new/sf, 'r-',lw=2,label='PINN') 
+        # ax.set_xlim(0-0.5,180)
+        # ax.set_ylim(0-0.5,6000+0.5)
+        ax.legend(fontsize=22)
+        ax.tick_params(axis='both', labelsize = 24)
+        ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
+        ax.grid(True)
+        ax.set_xlabel('Days', fontsize = font)
+        ax.set_ylabel('New hospitalized ($H$)', fontsize = font) 
+        fig.set_size_inches(w=13,h=6.5)
+        if SAVE_FIG:
+            plt.savefig(save_results_to +'new_hospitalized.png', dpi=300)  
+    
+        #Death Cases
+        font = 24
+        fig, ax = plt.subplots()
+        ax.plot(t_star, D_new_star/sf, 'k--', marker = 'o',lw=2, markersize=5, label='Data-7davg')
+        # ax.plot(t_star, D_new_star/sf, 'b.', lw=2, markersize=5, label='Data-daily')
+        ax.plot(t_star[:-1], D_new/sf, 'r-',lw=2,label='PINN') 
+        # ax.set_xlim(0-0.5,180)
+        # ax.set_ylim(0-0.5,6000+0.5)
+        ax.legend(fontsize=22)
+        ax.tick_params(axis='both', labelsize = 24)
+        ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
+        ax.grid(True)
+        ax.set_xlabel('Days', fontsize = font)
+        ax.set_ylabel('New death ($D$)', fontsize = font) 
+        fig.set_size_inches(w=13,h=6.5)
+        if SAVE_FIG:
+            plt.savefig(save_results_to +'new_death.png', dpi=300)  
+        
+        #Accumulative confirmed Cases
+        font = 24
+        fig, ax = plt.subplots()
+        ax.plot(t_star, I_sum_star/sf, 'k--', marker = 'o',lw=2, markersize=5, label='Data-7davg')
+        # ax.plot(t_star, I_sum_star/sf, 'b.', lw=2, markersize=5, label='Data-daily')
+        ax.plot(t_star, I_sum/sf, 'r-',lw=2,label='PINN') 
+        # ax.set_xlim(0-0.5,180)
+        # ax.set_ylim(0-0.5,6000+0.5)
+        ax.legend(fontsize=22)
+        ax.tick_params(axis='both', labelsize = 24)
+        ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
+        ax.grid(True)
+        ax.set_xlabel('Days', fontsize = font)
+        ax.set_ylabel('Cumulative cases ($I_{sum}$)', fontsize = font) 
+        fig.set_size_inches(w=13,h=6.5)
+        if SAVE_FIG:
+            plt.savefig(save_results_to +'Cumulative_cases.png', dpi=300)  
+    
+        #Accumulative hospitalized Cases
+        font = 24
+        fig, ax = plt.subplots()
+        ax.plot(t_star, H_sum_star/sf, 'k--', marker = 'o',lw=2, markersize=5, label='Data-7davg')
+        # ax.plot(t_star, H_sum_star/sf, 'b.', lw=2, markersize=5, label='Data-daily')
+        ax.plot(t_star, H_sum/sf, 'r-',lw=2,label='PINN') 
+        # ax.set_xlim(0-0.5,180)
+        # ax.set_ylim(0-0.5,6000+0.5)
+        ax.legend(fontsize=22)
+        ax.tick_params(axis='both', labelsize = 24)
+        ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
+        ax.grid(True)
+        ax.set_xlabel('Days', fontsize = font)
+        ax.set_ylabel('Cumulative hospitalized ($H_{sum}$)', fontsize = font) 
+        fig.set_size_inches(w=13,h=6.5)
+        if SAVE_FIG:
+            plt.savefig(save_results_to +'Cumulative_hospitalized.png', dpi=300)  
+    
+        #Accumulative death cases
+        font = 24
+        fig, ax = plt.subplots()
+        ax.plot(t_star, D_sum_star/sf, 'k--', marker = 'o',lw=2, markersize=5, label='Data-7davg')
+        # ax.plot(t_star, D_sum_star/sf, 'b.', lw=2, markersize=5, label='Data-daily')
+        ax.plot(t_star, D_sum/sf, 'r-',lw=2,label='PINN') 
+        # ax.set_xlim(0-0.5,180)
+        # ax.set_ylim(0-0.5,6000+0.5)
+        ax.legend(fontsize=22)
+        ax.tick_params(axis='both', labelsize = 24)
+        ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
+        ax.grid(True)
+        ax.set_xlabel('Days', fontsize = font)
+        ax.set_ylabel('Cumulative death ($D_{sum}$)', fontsize = font) 
+        fig.set_size_inches(w=13,h=6.5)
+        if SAVE_FIG:
+            plt.savefig(save_results_to +'Cumulative_death.png', dpi=300) 
+    
+        
+        #BetaI curve 
+        font = 24
+        fig, ax = plt.subplots()  
+        ax.plot(t_star, BetaI, 'r-',lw=2) 
+        # ax.set_xlim(0-0.5,180)
+        # ax.set_ylim(0-0.5,6000+0.5)
+        ax.legend(fontsize=22)
+        ax.tick_params(axis='both', labelsize = 24)
+        # ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
+        ax.grid(True)
+        ax.set_xlabel('Days', fontsize = font)
+        ax.set_ylabel('$Beta_{I}$', fontsize = font) 
+        fig.set_size_inches(w=13,h=6.5)
+        if SAVE_FIG:
+            plt.savefig(save_results_to +'BetaI.png', dpi=300)  
+        
+        #RC curve 
+        font = 24
+        fig, ax = plt.subplots()  
+        ax.plot(t_star, Rc, 'r-',lw=2) 
+        # ax.set_xlim(0-0.5,180)
+        # ax.set_ylim(0-0.5,6000+0.5)
+        ax.legend(fontsize=22)
+        ax.tick_params(axis='both', labelsize = 24)
+        # ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
+        ax.grid(True)
+        ax.set_xlabel('Days', fontsize = font)
+        ax.set_ylabel('$R_{c}$', fontsize = font) 
+        fig.set_size_inches(w=13,h=6.5)
+        if SAVE_FIG:
+            plt.savefig(save_results_to +'Rc.png', dpi=300)
+    
+        #p curve 
+        font = 24
+        fig, ax = plt.subplots()  
+        ax.plot(t_star, p, 'r-', lw=2, label='PINN')    
+        # ax.set_xlim(0-0.5,180)
+        # ax.set_ylim(0-0.5,6000+0.5)
+        ax.legend(fontsize=22)
+        ax.tick_params(axis='both', labelsize = 24)
+        # ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
+        ax.grid(True)
+        ax.set_xlabel('Days', fontsize = font)
+        ax.set_ylabel('$p$', fontsize = font) 
+        fig.set_size_inches(w=13,h=6.5)
+        if SAVE_FIG:
+            plt.savefig(save_results_to +'p.png', dpi=300)
+    
+        #q curve 
+        font = 24
+        fig, ax = plt.subplots()  
+        ax.plot(t_star, q, 'r-', lw=2, label='PINN')    
+        # ax.set_xlim(0-0.5,180)
+        # ax.set_ylim(0-0.5,6000+0.5)
+        ax.legend(fontsize=22)
+        ax.tick_params(axis='both', labelsize = 24)
+        # ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
+        ax.grid(True)
+        ax.set_xlabel('Days', fontsize = font)
+        ax.set_ylabel('$q$', fontsize = font) 
+        fig.set_size_inches(w=13,h=6.5)
+        if SAVE_FIG:
+            plt.savefig(save_results_to +'q.png', dpi=300)
+    
+        # Current SEIJDHR 
+        font = 24
+        fig, ax = plt.subplots() 
+        ax.plot(t_star, S/sf, lw=2,label='S') 
+        # ax.set_xlim(0-0.5,180)
+        # ax.set_ylim(0-0.5,6000+0.5)
+        ax.legend(fontsize=22)
+        ax.tick_params(axis='both', labelsize = 24)
+        # ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
+        ax.grid(True)
+        ax.set_xlabel('Days', fontsize = font)
+        ax.set_ylabel('$S$', fontsize = font) 
+        fig.set_size_inches(w=13,h=6.5)
+        if SAVE_FIG:
+            plt.savefig(save_results_to +'Current_S.png', dpi=300) 
+        
+        font = 24
+        fig, ax = plt.subplots()   
+        ax.plot(t_star, E/sf, lw=2,label='E')   
+        # ax.set_xlim(0-0.5,180)
+        # ax.set_ylim(0-0.5,6000+0.5)
+        ax.legend(fontsize=22)
+        ax.tick_params(axis='both', labelsize = 24)
+        # ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
+        ax.grid(True)
+        ax.set_xlabel('Days', fontsize = font)
+        ax.set_ylabel('$E$', fontsize = font) 
+        fig.set_size_inches(w=13,h=6.5)
+        if SAVE_FIG:
+            plt.savefig(save_results_to +'Current_E.png', dpi=300)
+        
+        font = 24
+        fig, ax = plt.subplots()  
+        ax.plot(t_star, J/sf, lw=2,label='J')   
+        # ax.set_xlim(0-0.5,180)
+        # ax.set_ylim(0-0.5,6000+0.5)
+        ax.legend(fontsize=22)
+        ax.tick_params(axis='both', labelsize = 24)
+        # ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
+        ax.grid(True)
+        ax.set_xlabel('Days', fontsize = font)
+        ax.set_ylabel('$J$', fontsize = font) 
+        fig.set_size_inches(w=13,h=6.5)
+        if SAVE_FIG:
+            plt.savefig(save_results_to +'Current_J.png', dpi=300)
+        
+        font = 24
+        fig, ax = plt.subplots()  
+        ax.plot(t_star, R/sf, lw=2,label='R') 
+        # ax.set_xlim(0-0.5,180)
+        # ax.set_ylim(0-0.5,6000+0.5)
+        ax.legend(fontsize=22)
+        ax.tick_params(axis='both', labelsize = 24)
+        # ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
+        ax.grid(True)
+        ax.set_xlabel('Days', fontsize = font)
+        ax.set_ylabel('$R$', fontsize = font) 
+        fig.set_size_inches(w=13,h=6.5)
+        if SAVE_FIG:
+            plt.savefig(save_results_to +'Current_R.png', dpi=300) 

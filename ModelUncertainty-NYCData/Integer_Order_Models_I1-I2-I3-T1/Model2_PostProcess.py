@@ -81,53 +81,7 @@ I_sum_train = I_sum_star
 D_sum_train = D_sum_star 
 H_sum_train = H_sum_star 
 
-
-# data_frame = pandas.read_csv('Data/COVID-19 Rhode Island Data - Trends.csv')  
-# date = data_frame['Date']
-# newI = data_frame['New people who tested positive (counts first positive lab per person)'] #T x 1 array 
-# newH = data_frame['New hospital admissions'] #T x 1 array 
-# currentH = data_frame['Currently hospitalized'] #T x 1 array
-# newD = data_frame['Hospital deaths'] #T x 1 array
-# #Remove the nan values 
-# date_nan = date.shape[0]-date.count()
-# newI_nan = newI.shape[0]-newI.count()
-# newH_nan = newH.shape[0]-newH.count()
-# H_nan = currentH.shape[0]-currentH.count()
-# newD_nan = newD.shape[0]-newD.count()
-# Num_nan = max(np.array([date_nan, newI_nan, newH_nan, H_nan, newD_nan]))
-# Date_total = date[0:-Num_nan]
-# I_new = newI[0:-Num_nan]
-# H_new = newH[0:-Num_nan]
-# H = currentH[0:-Num_nan]
-# D_new = newD[0:-Num_nan]  
-# #7 days averaged data 
-# I_new_star = I_new.rolling(window=7).mean()
-# H_new_star = H_new.rolling(window=7).mean()
-# H_star = H.rolling(window=7).mean()
-# D_new_star = D_new.rolling(window=7).mean()
-
-# I_new_star = I_new_star.to_numpy(dtype=np.float64)
-# H_new_star = H_new_star.to_numpy(dtype=np.float64)
-# H_star = H_star.to_numpy(dtype=np.float64)
-# D_new_star = D_new_star.to_numpy(dtype=np.float64)
-
-# Date_total = Date_total[6:]
-# I_new_star = I_new_star[6:]
-# H_new_star = H_new_star[6:]
-# H_star = H_star[6:]
-# D_new_star = D_new_star[6:] 
-# I_new_star = I_new_star.reshape([len(I_new_star), 1])
-# H_new_star = H_new_star.reshape([len(H_new_star), 1])
-# H_star = H_star.reshape([len(H_star), 1])
-# D_new_star = D_new_star.reshape([len(D_new_star), 1]) 
-
-# I_sum_star = np.cumsum(I_new_star) 
-# H_sum_star = np.cumsum(H_new_star)
-# D_sum_star = np.cumsum(D_new_star)
-# I_sum_star = I_sum_star.reshape([len(I_sum_star), 1]) 
-# H_sum_star = H_sum_star.reshape([len(H_sum_star), 1]) 
-# D_sum_star = D_sum_star.reshape([len(D_sum_star), 1])
-
+ 
 
 #%%
 #read results  
@@ -155,14 +109,13 @@ from datetime import datetime
 now = datetime.now()
 # dt_string = now.strftime("%m-%d-%H-%M")
 dt_string = now.strftime("%m-%d")
-dt_string = '03-04'
+# dt_string = '03-24'
 
 
 Model = '2'
 relative_path_results0 = '/Model'+Model
 
-
-#for j in [1,2,3,4,5]:
+ 
 for j in np.arange(1,11,1):
 
     casenumber ='set' +str(j)
@@ -320,7 +273,7 @@ np.savetxt(save_results_to + 'q_pred_std.txt', q_pred_std.reshape((-1,1)))
 
 
 first_date = '2020-03-06' #first_date[6:]+'-'+first_date[0:2]+'-'+first_date[3:5]
-last_date = '2021-03-01' #last_date[6:]+'-'+last_date[0:2]+'-'+str(int(last_date[3:5])+1)
+last_date = '2021-03-22' #last_date[6:]+'-'+last_date[0:2]+'-'+str(int(last_date[3:5])+1)
 
 date_total = np.arange(first_date, last_date, dtype='datetime64[D]')
 

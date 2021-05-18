@@ -79,7 +79,8 @@ D_new_train = D_new_star
 H_new_train = H_new_star
 I_sum_train = I_sum_star 
 D_sum_train = D_sum_star 
-H_sum_train = H_sum_star 
+H_sum_train = H_sum_star  
+
 
 #%%
 #read results  
@@ -94,6 +95,7 @@ D_pred_total = []
 H_pred_total = []
 R_pred_total = [] 
 BetaI_pred_total = []
+Rc_pred_total = []
 p_pred_total = []
 q_pred_total = [] 
 I_new_pred_total = []
@@ -110,7 +112,7 @@ dt_string = now.strftime("%m-%d")
 # dt_string = '03-24'
 
 
-Model = '1'
+Model = '7'
 relative_path_results0 = '/Model'+Model
 
  
@@ -120,9 +122,9 @@ for j in np.arange(1,11,1):
     current_directory = os.getcwd()
     relative_path_results = relative_path_results0 + '/Train-Results-'+dt_string+'-'+casenumber+'/'
     read_results_to = current_directory + relative_path_results 
-    
     S_pred = np.loadtxt(read_results_to + 'S.txt')
-    E_pred = np.loadtxt(read_results_to + 'E.txt')
+    if Model == '3' or Model == '2' or Model == '1':
+        E_pred = np.loadtxt(read_results_to + 'E.txt')
     if Model == '3' or Model == '2':
         PreS_pred = np.loadtxt(read_results_to + 'PreS.txt')
     if Model == '3':
@@ -133,6 +135,7 @@ for j in np.arange(1,11,1):
     H_pred = np.loadtxt(read_results_to + 'H.txt')
     R_pred = np.loadtxt(read_results_to + 'R.txt')
     BetaI_pred = np.loadtxt(read_results_to + 'BetaI.txt')
+    Rc_pred = np.loadtxt(read_results_to + 'Rc.txt')
     p_pred = np.loadtxt(read_results_to + 'p.txt')
     q_pred = np.loadtxt(read_results_to + 'q.txt')
     I_new_pred = np.loadtxt(read_results_to + 'I_new.txt')
@@ -143,7 +146,8 @@ for j in np.arange(1,11,1):
     D_sum_pred = np.loadtxt(read_results_to + 'D_sum.txt') 
 
     S_pred_total.append(S_pred)
-    E_pred_total.append(E_pred)
+    if Model == '3' or Model == '2' or Model == '1':
+        E_pred_total.append(E_pred)
     if Model == '3' or Model == '2':
         PreS_pred_total.append(PreS_pred)
     if Model == '3':
@@ -160,13 +164,15 @@ for j in np.arange(1,11,1):
     H_sum_pred_total.append(H_sum_pred)
     D_sum_pred_total.append(D_sum_pred)
     BetaI_pred_total.append(BetaI_pred)
+    Rc_pred_total.append(Rc_pred)
     p_pred_total.append(p_pred)
     q_pred_total.append(q_pred) 
     
 #%%
 #Average  
 S_pred_mean = np.mean(S_pred_total, axis=0)
-E_pred_mean = np.mean(E_pred_total, axis=0)
+if Model == '3' or Model == '2' or Model == '1':
+    E_pred_mean = np.mean(E_pred_total, axis=0)
 if Model == '3' or Model == '2':
     PreS_pred_mean = np.mean(PreS_pred_total, axis=0)
 if Model == '3':
@@ -183,12 +189,14 @@ I_sum_pred_mean = np.mean(I_sum_pred_total, axis=0)
 H_sum_pred_mean = np.mean(H_sum_pred_total, axis=0)
 D_sum_pred_mean = np.mean(D_sum_pred_total, axis=0)
 BetaI_pred_mean = np.mean(BetaI_pred_total, axis=0) 
+Rc_pred_mean = np.mean(Rc_pred_total, axis=0) 
 p_pred_mean = np.mean(p_pred_total, axis=0) 
 q_pred_mean = np.mean(q_pred_total, axis=0) 
 
  
 S_pred_std = np.std(S_pred_total, axis=0)
-E_pred_std = np.std(E_pred_total, axis=0)
+if Model == '3' or Model == '2' or Model == '1':
+    E_pred_std = np.std(E_pred_total, axis=0)
 if Model == '3' or Model == '2':
     PreS_pred_std = np.std(PreS_pred_total, axis=0)
 if Model == '3':
@@ -205,6 +213,7 @@ I_sum_pred_std = np.std(I_sum_pred_total, axis=0)
 H_sum_pred_std = np.std(H_sum_pred_total, axis=0)
 D_sum_pred_std = np.std(D_sum_pred_total, axis=0)
 BetaI_pred_std = np.std(BetaI_pred_total, axis=0) 
+Rc_pred_std = np.std(Rc_pred_total, axis=0) 
 p_pred_std = np.std(p_pred_total, axis=0) 
 q_pred_std = np.std(q_pred_total, axis=0) 
 
@@ -217,7 +226,8 @@ if not os.path.exists(save_results_to):
     os.makedirs(save_results_to)
 
 np.savetxt(save_results_to + 'S_pred_mean.txt', S_pred_mean.reshape((-1,1))) 
-np.savetxt(save_results_to + 'E_pred_mean.txt', E_pred_mean.reshape((-1,1)))  
+if Model == '3' or Model == '2' or Model == '1':
+    np.savetxt(save_results_to + 'E_pred_mean.txt', E_pred_mean.reshape((-1,1)))  
 if Model == '3' or Model == '2':
     np.savetxt(save_results_to + 'PreS_pred_mean.txt', PreS_pred_mean.reshape((-1,1))) 
 if Model == '3':
@@ -233,12 +243,14 @@ np.savetxt(save_results_to + 'D_new_pred_mean.txt', D_new_pred_mean.reshape((-1,
 np.savetxt(save_results_to + 'I_sum_pred_mean.txt', I_sum_pred_mean.reshape((-1,1)))  
 np.savetxt(save_results_to + 'H_sum_pred_mean.txt', H_sum_pred_mean.reshape((-1,1))) 
 np.savetxt(save_results_to + 'D_sum_pred_mean.txt', D_sum_pred_mean.reshape((-1,1)))  
-np.savetxt(save_results_to + 'BetaI_pred_mean.txt', BetaI_pred_mean.reshape((-1,1)))  
+np.savetxt(save_results_to + 'BetaI_pred_mean.txt', BetaI_pred_mean.reshape((-1,1)))   
+np.savetxt(save_results_to + 'Rc_pred_mean.txt', Rc_pred_mean.reshape((-1,1))) 
 np.savetxt(save_results_to + 'p_pred_mean.txt', p_pred_mean.reshape((-1,1)))  
 np.savetxt(save_results_to + 'q_pred_mean.txt', q_pred_mean.reshape((-1,1)))  
 
 np.savetxt(save_results_to + 'S_pred_std.txt', S_pred_std.reshape((-1,1))) 
-np.savetxt(save_results_to + 'E_pred_std.txt', E_pred_std.reshape((-1,1))) 
+if Model == '3' or Model == '2' or Model == '1':
+    np.savetxt(save_results_to + 'E_pred_std.txt', E_pred_std.reshape((-1,1))) 
 if Model == '3' or Model == '2':
     np.savetxt(save_results_to + 'PreS_pred_std.txt', PreS_pred_std.reshape((-1,1))) 
 if Model == '3':
@@ -254,7 +266,8 @@ np.savetxt(save_results_to + 'D_new_pred_std.txt', D_new_pred_std.reshape((-1,1)
 np.savetxt(save_results_to + 'I_sum_pred_std.txt', I_sum_pred_std.reshape((-1,1)))  
 np.savetxt(save_results_to + 'H_sum_pred_std.txt', H_sum_pred_std.reshape((-1,1))) 
 np.savetxt(save_results_to + 'D_sum_pred_std.txt', D_sum_pred_std.reshape((-1,1)))  
-np.savetxt(save_results_to + 'BetaI_pred_std.txt', BetaI_pred_std.reshape((-1,1)))  
+np.savetxt(save_results_to + 'BetaI_pred_std.txt', BetaI_pred_std.reshape((-1,1)))   
+np.savetxt(save_results_to + 'Rc_pred_std.txt', Rc_pred_std.reshape((-1,1))) 
 np.savetxt(save_results_to + 'p_pred_std.txt', p_pred_std.reshape((-1,1)))  
 np.savetxt(save_results_to + 'q_pred_std.txt', q_pred_std.reshape((-1,1)))  
 
@@ -312,32 +325,33 @@ plt.savefig(save_results_to + 'Current_Suspectious.png', dpi=300)
 
 #%%
 #Current Exposed 
-fig, ax = plt.subplots() 
-ax.plot(date_total, E_pred_mean/sf, 'k-', lw=5) 
-plt.fill_between(date_total, \
-                  (E_pred_mean+E_pred_std)/sf, \
-                  (E_pred_mean-E_pred_std)/sf, \
-                  facecolor=(0.1,0.2,0.5,0.3), interpolate=True) 
- 
-# ax.set_xlim(0-0.5,180)
-# ax.set_ylim(0-0.5,6000+0.5)
-ax.xaxis.set_major_locator(mdates.MonthLocator(interval=2))
-ax.xaxis.set_major_formatter(mdates.DateFormatter('%m-%y'))
-ax.xaxis.set_minor_locator(mdates.DayLocator(interval=7))
-plt.xticks(rotation=30)
-# ax.legend(fontsize=40, ncol = 1, loc = 'upper left')
-ax.tick_params(axis='x', labelsize = 40)
-ax.tick_params(axis='y', labelsize = 50)
-ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
-plt.rc('font', size=30)
-# ax.grid(True)
-# ax.set_xlabel('Date', fontsize = font) 
-ax.set_ylabel('$E$', fontsize = 80) 
-ax.spines['right'].set_visible(False)
-ax.spines['top'].set_visible(False)
-fig.set_size_inches(w=25, h=12.5)
-plt.savefig(save_results_to + 'Current_Exposed.pdf', dpi=300) 
-plt.savefig(save_results_to + 'Current_Exposed.png', dpi=300) 
+if Model == '3' or Model == '2' or Model == '1':
+    fig, ax = plt.subplots() 
+    ax.plot(date_total, E_pred_mean/sf, 'k-', lw=5) 
+    plt.fill_between(date_total, \
+                      (E_pred_mean+E_pred_std)/sf, \
+                      (E_pred_mean-E_pred_std)/sf, \
+                      facecolor=(0.1,0.2,0.5,0.3), interpolate=True) 
+     
+    # ax.set_xlim(0-0.5,180)
+    # ax.set_ylim(0-0.5,6000+0.5)
+    ax.xaxis.set_major_locator(mdates.MonthLocator(interval=2))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%m-%y'))
+    ax.xaxis.set_minor_locator(mdates.DayLocator(interval=7))
+    plt.xticks(rotation=30)
+    # ax.legend(fontsize=40, ncol = 1, loc = 'upper left')
+    ax.tick_params(axis='x', labelsize = 40)
+    ax.tick_params(axis='y', labelsize = 50)
+    ax.ticklabel_format(axis='y', style='sci', scilimits=(3,3))
+    plt.rc('font', size=30)
+    # ax.grid(True)
+    # ax.set_xlabel('Date', fontsize = font) 
+    ax.set_ylabel('$E$', fontsize = 80) 
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    fig.set_size_inches(w=25, h=12.5)
+    plt.savefig(save_results_to + 'Current_Exposed.pdf', dpi=300) 
+    plt.savefig(save_results_to + 'Current_Exposed.png', dpi=300) 
 
 #%%
 #Current Presymp
